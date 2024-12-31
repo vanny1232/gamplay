@@ -15,12 +15,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $imageData = base64_decode($imageData);
 
         // Define the file path and name where the image will be saved
-        $filePath = 'uploads/photo_' . time() . '.png';
+        $filePath = 'photo_' . time() . '.png';
 
         // Create the uploads directory if it doesn't exist
-        if (!is_dir('uploads')) {
-            mkdir('uploads', 0777, true);
-        }
+        // if (!is_dir('uploads')) {
+        //     mkdir('uploads', 0777, true);
+        // }
 
         // Save the image to the server
         if (file_put_contents($filePath, $imageData)) {

